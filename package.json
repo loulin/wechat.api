@@ -1,0 +1,24 @@
+{
+  "name": "wechat.api",
+  "version": "1.0.1",
+  "description": "wechat api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "wechat",
+    "api",
+    "weixin"
+  ],
+  "author": "Lou, Lin",
+  "license": "MIT",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "request-promise": "^3.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^2.10.2",
+    "eslint-config-airbnb": "^9.0.1"
+  }
+}
