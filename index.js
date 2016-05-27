@@ -1,76 +1,84 @@
-let debug = require('debug');
-let rp = require('request-promise');
+const debug = require('debug')('wechat:api');
+const rp = require('request-promise').defaults({
+  json: true,
+  transform(body) {
+    if (body && body.errcode) {
+      const error = new Error(body.errmsg);
+      error.code = body.errcode;
+      error.raw = body;
+      throw error;
+    }
+
+    return body;
+  },
+});
 
 class Wechat {
-	constructor(appid, secret) {
-		this.appid = appid;
-		this.secret = secret;
-		this.origin = 'https://api.weixin.qq.com';
-		this.defaultOptions = {};
-		this.token = {};
-		this.getToken = function() {
-			return Promise.resolve(this.token);
-		};
-		this.setToken = function(token) {
-			this.token = token;
-			return Promise.resolve(token);
-		};
-	}
+  constructor({
+    appid,
+    secret,
+    defaultOptions,
+    getToken = () => Promise.resolve(this.token),
+    setToken = (token) => {
+      this.token = token;
+      return Promise.resolve(token);
+    },
+  }) {
+    this.appid = appid;
+    this.secret = secret;
+    this.defaultOptions = defaultOptions;
+    this.getToken = getToken;
+    this.setToken = setToken;
+    this.origin = 'https://api.weixin.qq.com';
+    this.token = {};
+  }
 
-	apiCall(entry, data) {
-		let options = Object.assign({}, this.defaultOptions, {
-			method: 'GET',
-			uri: this.origin + entry,
-			json: true,
-			simple: true,
-			resolveWithFullResponse: false,
-			transform: function(body) {
-				var error;
+  api(entry, data, rpOptions, reload) {
+    const options = Object.assign({}, this.defaultOptions, {
+      method: 'GET',
+      uri: this.origin + entry,
+    }, rpOptions);
 
-				if (body && body.errcode) {
-					error = new Error(body.errmsg);
-					error.code = body.errcode;
-					error.raw = body;
-					throw error;
-				}
+    return this.getToken().then(token => {
+      if (reload || !token || !token.access || token.expire > Date.now()) {
+        return this.getAccessToken();
+      }
 
-				return body;
-			}
-		});
+      return token;
+    }).then(token => {
+      options.uri = `${options.uri}?access_token=${token.access}`;
 
-		return this.getToken().then(token => {
-			if (!token || !token.access || new Date(token.expire) > new Date()) {
-				return this.getAccessToken();
-			}
+      if (data && typeof data === 'object') {
+        options.method = 'POST';
+        options.body = data;
+      } else if (data) {
+        options.uri += `&${data}`;
+      }
 
-			return token;
-		}).then(token => {
-			options.uri = options.uri + '?access_token=' + token.access;
+      debug(`${options.method} ${options.uri}`);
+      return rp(options).then(result => result).catch(error => {
+        if (!reload && error.cause && error.cause.code === 40001) {
+          debug(`${error.message}, retry...`);
+          return this.api(entry, data, rpOptions, true);
+        }
 
-			if (typeof data === 'object') {
-				options.method = 'POST';
-				options.body = data;
-			} else if (data) {
-				options.uri += '&' + data;
-			}
+        return Promise.reject(error);
+      });
+    }).catch(error => Promise.reject(error.cause || error));
+  }
 
-			return rp(options);
-		}).catch(error => Promise.reject(error.cause));
+  getAccessToken() {
+    const url = `${this.origin}/cgi-bin/token?grant_type=client_credential` +
+      `&appid=${this.appid}&secret=${this.secret}`;
 
-	}
-
-	getAccessToken() {
-		let url = this.origin + '/cgi-bin/token?grant_type=client_credential&appid=' + this.appid + '&secret=' + this.secret;
-
-		return rp.get(url, {
-			json: true
-		}).then(result => {
-			this.token.access = result.access_token;
-			this.token.expire = (result.expires_in - 10) * 1000;
-			this.setToken(this.token);
-			return this.token;
-		});
-	};
+    debug(`GET ${url}`);
+    return rp.get(url).then(result => {
+      this.token.access = result.access_token;
+      this.token.expire = Date.now() + (result.expires_in - 10) * 1000;
+      this.setToken(this.token);
+      return this.token;
+    });
+  }
 }
 
 module.exports = Wechat;
