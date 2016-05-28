@@ -1,15 +1,18 @@
 {
   "name": "wechat.api",
-  "version": "1.0.2",
-  "description": "wechat api",
+  "version": "1.0.4",
+  "description": "Yet another wechat api based on ES6 & Promise",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Need your contribution\" && exit 1"
   },
+  "repository": "git@github.com:loulin/wechat.api.git",
   "keywords": [
     "wechat",
     "api",
-    "weixin"
+    "weixin",
+    "wechat node sdk",
+    "wechat promise"
   ],
   "author": "Lou, Lin",
   "license": "MIT",
