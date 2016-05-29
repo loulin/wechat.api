@@ -1,6 +1,6 @@
 {
   "name": "wechat.api",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Yet another wechat api based on ES6 & Promise",
   "main": "index.js",
   "scripts": {

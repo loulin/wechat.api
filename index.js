@@ -19,7 +19,6 @@ class Wechat {
     appid,
     secret,
     defaultOptions,
-    logger,
     getToken = () => Promise.resolve(this.token),
     setToken = (token) => {
       this.token = token;
@@ -29,7 +28,6 @@ class Wechat {
     this.appid = appid;
     this.secret = secret;
     this.defaultOptions = defaultOptions;
-    this.logger = logger;
     this.getToken = getToken;
     this.setToken = setToken;
     this.origin = 'https://api.weixin.qq.com';
@@ -71,16 +69,6 @@ class Wechat {
   }
 
   request(options) {
-    if (typeof this.logger === 'function') {
-      return rp(options).then(body => {
-        this.logger(options, body);
-        return body;
-      }).catch(error => {
-        this.logger(options, error);
-        return Promise.reject(error);
-      });
-    }
-
     return rp(options);
   }
 

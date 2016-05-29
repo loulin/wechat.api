@@ -11,14 +11,6 @@ const Wechat = require('wechat.api');
 const wechat = new Wechat({
   appid: 'xxx',
   secret: 'xxx',
-  logger(options, result) {
-    console.log(options.uri);
-    if (result instanceof Error) {
-      console.error(result.message);
-    } else {
-      console.log(result);
-    }
-  },
 });
 
 wechat.api('/cgi-bin/user/info', 'openid=xxx&lang=en').then(result => {
