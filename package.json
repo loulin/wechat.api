@@ -1,0 +1,64 @@
+{
+  "name": "wechat.api",
+  "version": "2.2.0",
+  "description": "Yet another wechat api based on ES6 & Promise",
+  "author": "loulin",
+  "license": "MIT",
+  "repository": "git@github.com:loulin/wechat.api.git",
+  "keywords": [
+    "wechat",
+    "api",
+    "weixin",
+    "wechat node sdk",
+    "wechat promise"
+  ],
+  "main": "dist/wechat.api.js",
+  "module": "dist/wechat.api.mjs",
+  "typings": "dist/wechat.api.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "build": "rimraf dist && rollup -c",
+    "test": "nyc --reporter=html mocha --reporter spec -r dotenv/config --require ts-node/register test/**/*.test.ts",
+    "lint": "eslint --fix 'src/**/*.ts'"
+  },
+  "dependencies": {
+    "debug": "^4.3.3",
+    "got": "^11.8.3",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/chai": "^4.3.0",
+    "@types/debug": "^4.1.7",
+    "@types/lodash": "^4.14.178",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^17.0.8",
+    "@typescript-eslint/eslint-plugin": "^5.9.0",
+    "@typescript-eslint/parser": "^5.9.0",
+    "chai": "^4.3.4",
+    "dotenv": "^10.0.0",
+    "esbuild": "^0.14.10",
+    "eslint": "^8.6.0",
+    "eslint-config-airbnb-typescript": "^16.1.0",
+    "eslint-plugin-import": "^2.25.4",
+    "mocha": "^9.1.3",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.63.0",
+    "rollup-plugin-dts": "^4.1.0",
+    "rollup-plugin-esbuild": "^4.8.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "exclude": [
+      "test/**/*.test.js"
+    ]
+  }
+}
