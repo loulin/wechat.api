@@ -90,8 +90,8 @@ const entries: Record<string, APIOptions> = {
 type Options = {
   appid?: string,
   secret?: string,
-  getToken?: () => Promise<AccessToken>,
-  refreshToken?: () => Promise<AccessToken>,
+  getToken?: () => Promise<AccessToken | undefined>,
+  refreshToken?: () => Promise<AccessToken | undefined>,
 };
 
 export * from './AccessToken';
@@ -104,7 +104,7 @@ export class API {
 
   getToken: () => Promise<AccessToken | undefined>;
 
-  refreshToken: () => Promise<AccessToken>;
+  refreshToken: () => Promise<AccessToken | undefined>;
 
   constructor(options?: Options) {
     this.appid = options?.appid;
@@ -161,6 +161,8 @@ export class API {
         token = await this.refreshToken();
       }
 
+      if (!token) throw new WechatError({ errcode: -2, errmsg: '获取token失败' });
+
       accessToken = token.get();
     }
 
@@ -197,6 +199,8 @@ export class API {
     if (!options?.retry && !payload.access_token && [40001, 40014, 42001].includes(body.errcode)) {
       log('retry due to accessToken invalid: %O', body);
       const token = await this.refreshToken();
+
+      if (!token) throw new WechatError({ errcode: -2, errmsg: '获取token失败' });
 
       return this.call(
         apiPath,
